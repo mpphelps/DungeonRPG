@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DungeonRPG.Characters;
+using System.Collections;
 using System.ComponentModel;
 using System.Threading;
 using System.Xml.Linq;
@@ -19,16 +20,24 @@ namespace DungeonRPG
     public class Game
     {
         private Party _heroes;
-        private Party _monsters;
+        private Party _monsterParty1;
+        private Party _monsterParty2;
+        private Party _monsterParty3;
 
         public Game()
         {
             _heroes = new Party(playerIsComputer: false);
             _heroes.Inventory.Add(new HealthPotion());
             AddPlayer(level: 5);
-            _monsters = new Party(playerIsComputer: true);
-            _monsters.Add(new Skeleton(level: 1));
-            _monsters.Add(new Skeleton(level: 1));
+            _monsterParty1 = new Party(playerIsComputer: true);
+            _monsterParty1.Add(new Skeleton(level: 1));
+
+            _monsterParty2 = new Party(playerIsComputer: true);
+            _monsterParty2.Add(new Skeleton(level: 1));
+            _monsterParty2.Add(new Skeleton(level: 1));
+
+            _monsterParty3 = new Party(playerIsComputer: true);
+            _monsterParty3.Add(new UncodedOne(level: 3));
         }
 
         private void AddPlayer(int level)
@@ -53,21 +62,32 @@ namespace DungeonRPG
 
         public void Run()
         {
+            bool didHeroesLose;
+            Round(_heroes, _monsterParty1, out didHeroesLose);
+            if (didHeroesLose) return;
+            Round(_heroes, _monsterParty2, out didHeroesLose);
+            if (didHeroesLose) return;
+            Round(_heroes, _monsterParty3, out _);
+        }
+        public void Round(Party heroes, Party monsters, out bool gameOver)
+        {
             while (true)
             {
-                _heroes.Turn(_monsters);
-                if (_monsters.Size == 0)
+                heroes.Turn(monsters);
+                if (monsters.Size == 0)
                 {
                     Console.WriteLine("The monsters have all been vanquished!");
                     Console.WriteLine("*********** YOU WON ***********");
-                    break;
+                    gameOver = false;
+                    return;
                 }
-                _monsters.Turn(_heroes);
-                if (_heroes.Size == 0)
+                monsters.Turn(heroes);
+                if (heroes.Size == 0)
                 {
                     Console.WriteLine("The monsters have slain the hero!");
                     Console.WriteLine("*********** GAME OVER ***********");
-                    break;
+                    gameOver = true;
+                    return;
                 }
             }
         }
@@ -136,8 +156,10 @@ namespace DungeonRPG
         {
             foreach (var character in Characters)
             {
+                if (EnemyParty.Size == 0) continue;
                 Console.WriteLine($"It's {character.Name}'s turn.");
                 character.Attack(EnemyParty[0]);
+                if (EnemyParty[0].IsDead) EnemyParty.Remove(EnemyParty[0]);
                 Console.WriteLine();
                 Thread.Sleep(500);
             }

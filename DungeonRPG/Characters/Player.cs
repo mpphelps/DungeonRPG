@@ -21,7 +21,7 @@
             int damageDone = Level * 2;
             character.Health -= damageDone;
             Console.WriteLine($"{Name} punches {character.Name} for {damageDone} damage!");
-            Console.WriteLine($"{character.Name} has {(character.Health < 0 ? 0 : character.Health)} health points remaining.");
+            Console.WriteLine($"{character.Name} has {(character.Health < 0 ? 0 : character.Health)}/{character.MaxHealth} health points remaining.");
             if (character.Health <= 0)
             {
                 character.IsDead = true;
