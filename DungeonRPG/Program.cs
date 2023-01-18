@@ -24,20 +24,55 @@ namespace DungeonRPG
         private Party _monsterParty2;
         private Party _monsterParty3;
 
+        public enum GameMode
+        {
+            PVE, PVP, EVE
+        }
         public Game()
         {
-            _heroes = new Party(playerIsComputer: false);
+            bool isHeroComputer = false;
+            bool isMonsterComputer = false;
+            var mode = SelectGameMode();
+            if (mode == GameMode.PVE)
+                isMonsterComputer = true;
+            if (mode == GameMode.EVE)
+            {
+                isHeroComputer = true;
+                isMonsterComputer = true;
+            }
+
+            _heroes = new Party(playerIsComputer: isHeroComputer);
             _heroes.Inventory.Add(new HealthPotion());
             AddPlayer(level: 5);
-            _monsterParty1 = new Party(playerIsComputer: true);
+            _monsterParty1 = new Party(playerIsComputer: isMonsterComputer);
             _monsterParty1.Add(new Skeleton(level: 1));
 
-            _monsterParty2 = new Party(playerIsComputer: true);
+            _monsterParty2 = new Party(playerIsComputer: isMonsterComputer);
             _monsterParty2.Add(new Skeleton(level: 1));
             _monsterParty2.Add(new Skeleton(level: 1));
 
-            _monsterParty3 = new Party(playerIsComputer: true);
+            _monsterParty3 = new Party(playerIsComputer: isMonsterComputer);
             _monsterParty3.Add(new UncodedOne(level: 3));
+        }
+
+        private GameMode SelectGameMode()
+        {
+            Console.WriteLine("Select Mode: ");
+            Console.WriteLine("1 - Player vs Computer: ");
+            Console.WriteLine("2 - Player vs Player: ");
+            Console.WriteLine("3 - Computer vs Computer: ");
+            while (true)
+            {
+                var input = Console.ReadKey(true).KeyChar.ToString();
+                if (int.TryParse(input, out int selection) && selection >= 1 && selection <= 3)
+                {
+                    return (GameMode)selection;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid selection");
+                }
+            }
         }
 
         private void AddPlayer(int level)
