@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.ComponentModel;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace DungeonRPG
 {
@@ -24,8 +25,28 @@ namespace DungeonRPG
         {
             _heroes = new Party();
             _monsters = new Party();
-            _heroes.Add(new Player(15, "Michael"));
+            AddPlayer();
             _monsters.Add(new Skeleton(5));
+        }
+
+        private void AddPlayer()
+        {
+            Console.WriteLine("Enter player name: ");
+            bool valid = false;
+            string? name;
+            while (!valid)
+            {
+                name = Console.ReadLine();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    valid = true;
+                    _heroes.Add(new Player(15, name));
+                }
+                else
+                {
+                    Console.WriteLine("Invalid name provided, try again: ");
+                }
+            }
         }
 
         public void Run()
