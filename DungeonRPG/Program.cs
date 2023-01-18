@@ -12,8 +12,6 @@ namespace DungeonRPG
         {
             var game = new Game();
             game.Run();
-
-
         }
     }
 
@@ -66,7 +64,7 @@ namespace DungeonRPG
                 var input = Console.ReadKey(true).KeyChar.ToString();
                 if (int.TryParse(input, out int selection) && selection >= 1 && selection <= 3)
                 {
-                    return (GameMode)selection;
+                    return (GameMode)(selection-1);
                 }
                 else
                 {
@@ -108,6 +106,7 @@ namespace DungeonRPG
         {
             while (true)
             {
+                PrintRoundStatus(heroes, monsters);
                 heroes.Turn(monsters);
                 if (monsters.Size == 0)
                 {
@@ -125,6 +124,22 @@ namespace DungeonRPG
                     return;
                 }
             }
+        }
+
+        private void PrintRoundStatus(Party heroes, Party monsters)
+        {
+            Console.WriteLine("======================== BATTLE ========================");
+            foreach (var hero in heroes)
+            {
+                Console.WriteLine($"{hero.Name} ({hero.Health}/{hero.MaxHealth})");
+            }
+            Console.WriteLine("--------------------------------------------------------");
+            foreach (var monster in monsters)
+            {
+                Console.WriteLine($"{monster.Name} ({monster.Health}/{monster.MaxHealth})");
+            }
+            
+            Console.WriteLine("========================================================");
         }
     }
 
@@ -193,7 +208,17 @@ namespace DungeonRPG
             {
                 if (EnemyParty.Size == 0) continue;
                 Console.WriteLine($"It's {character.Name}'s turn.");
-                character.Attack(EnemyParty[0]);
+                if (character.Health < character.MaxHealth && Inventory.Count > 0)
+                {
+                    var rand = new Random();
+                    if (rand.Next(0, 2) == 1) character.UseItem(Inventory[0]);
+                    else character.Attack(EnemyParty[0]);
+                }
+                else 
+                {
+                    character.Attack(EnemyParty[0]);
+                }
+                
                 if (EnemyParty[0].IsDead) EnemyParty.Remove(EnemyParty[0]);
                 Console.WriteLine();
                 Thread.Sleep(500);
