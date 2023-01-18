@@ -23,13 +23,15 @@ namespace DungeonRPG
 
         public Game()
         {
-            _heroes = new Party();
-            _monsters = new Party();
-            AddPlayer();
-            _monsters.Add(new Skeleton(5));
+            _heroes = new Party(playerIsComputer: false);
+            _heroes.Inventory.Add(new HealthPotion());
+            AddPlayer(level: 5);
+            _monsters = new Party(playerIsComputer: true);
+            _monsters.Add(new Skeleton(level: 1));
+            _monsters.Add(new Skeleton(level: 1));
         }
 
-        private void AddPlayer()
+        private void AddPlayer(int level)
         {
             Console.WriteLine("Enter player name: ");
             bool valid = false;
@@ -40,7 +42,7 @@ namespace DungeonRPG
                 if (!string.IsNullOrEmpty(name))
                 {
                     valid = true;
-                    _heroes.Add(new Player(15, name));
+                    _heroes.Add(new Player(level, name));
                 }
                 else
                 {
@@ -53,83 +55,162 @@ namespace DungeonRPG
         {
             while (true)
             {
-                _heroes.Turn();
-                _monsters.Turn();
+                _heroes.Turn(_monsters);
+                if (_monsters.Size == 0)
+                {
+                    Console.WriteLine("The monsters have all been vanquished!");
+                    Console.WriteLine("*********** YOU WON ***********");
+                    break;
+                }
+                _monsters.Turn(_heroes);
+                if (_heroes.Size == 0)
+                {
+                    Console.WriteLine("The monsters have slain the hero!");
+                    Console.WriteLine("*********** GAME OVER ***********");
+                    break;
+                }
             }
         }
     }
 
-    public interface ICharacter
+    public enum Actions
     {
-        public int Health { get; set; }
-        public string Name { get; set; }
-        public void TakeAction(Action<int> action, int value) { }
-
-        void TakeAction(Action<string, int> doNothing, int v);
+        DoNothing, Attack, UseItem
     }
 
-    public class Player : ICharacter
+    public class Party : IEnumerable<ICharacter>
     {
-        public int Health { get; set; }
-        public string Name { get; set; }
+        public List<ICharacter> Characters = new List<ICharacter>();
+        public List<IItem> Inventory { get; set; }
+        public bool PlayerIsComputer { get; set; }
+        public int Size { get { return Characters.Count; } }
+        public ICharacter this[int index] => Characters[index];
 
-        public Player(int health, string name)
+        public Party(bool playerIsComputer)
         {
-            Health = health;
-            Name = name;
+            PlayerIsComputer = playerIsComputer;
+            Inventory = new List<IItem>();
         }
 
-        public void TakeAction(Action<string, int> action, int value)
+        public void Turn(Party EnemyParty)
         {
-            action(Name, value);
-        }
-    }
+            if (PlayerIsComputer) ComputerTurn(EnemyParty);
+            else PlayerTurn(EnemyParty);
 
-    public class Skeleton : ICharacter
-    {
-        public int Health { get; set; }
-        public string Name { get; set; } = "Skeleton";
-
-        public Skeleton(int health)
-        {
-            Health = health;
         }
 
-        public void TakeAction(Action<string, int> action, int value)
+        public void PlayerTurn(Party EnemyParty)
         {
-            action(Name, value);
+            foreach (var character in Characters)
+            {
+                bool inTurn = true;
+                while (inTurn)
+                {
+                    Console.WriteLine($"It's {character.Name}'s turn. (Level: {character.Level} Health: {character.Health})");
+                    var action = GetPlayerAction();
+                    if (action == Actions.DoNothing)
+                    {
+                        character.DoNothing();
+                    }
+                    else if (action == Actions.Attack)
+                    {
+                        var enemy = SelectEnemy(EnemyParty);
+                        if (enemy == null) continue;
+                        character.Attack(enemy);
+                        if(enemy.IsDead) EnemyParty.Remove(enemy);
+                    }
+                    else if (action == Actions.UseItem)
+                    {
+                        var item = SelectItem();
+                        if (item == null) continue;
+                        character.UseItem(item);
+                    }
+                    inTurn = false;
+                    Console.WriteLine();
+                    Thread.Sleep(500);
+                }
+            }
         }
-    }
 
-    public static class Actions
-    {
-        public static void DoNothing(string Name, int value)
-        {
-            Console.WriteLine($"{Name} does nothing.");
-        }
-
-        
-    }
-
-    public class GameObject
-    {
-
-    }
-
-    public class Party
-    {
-        List<ICharacter> Characters = new List<ICharacter>();
-
-        public void Turn()
+        public void ComputerTurn(Party EnemyParty)
         {
             foreach (var character in Characters)
             {
                 Console.WriteLine($"It's {character.Name}'s turn.");
-                character.TakeAction(Actions.DoNothing,0);
+                character.Attack(EnemyParty[0]);
                 Console.WriteLine();
                 Thread.Sleep(500);
             }
         }
+
+        private Actions GetPlayerAction()
+        {
+            int selection = 0;
+            Console.WriteLine($"Select an action to take");
+            Console.WriteLine($"1 - Do Nothing");
+            Console.WriteLine($"2 - Attack");
+            Console.WriteLine($"3 - Use Item");
+            var actionList = Enum.GetValues(typeof(Actions)).Cast<Actions>().ToList();
+            bool valid = false;
+            while (!valid)
+            {
+                var input = Console.ReadKey(true).KeyChar.ToString();
+                if (int.TryParse(input, out selection) && selection >= 1 && selection <= actionList.Count)
+                    valid = true;
+                else
+                    Console.WriteLine("Not a valid selection");
+            }
+
+            return (Actions)(selection-1);
+        }
+
+        private ICharacter? SelectEnemy(Party EnemyParty)
+        {
+            Console.WriteLine("Select enemy to attack");
+            for (int i = 0; i < EnemyParty.Size; i++)
+            {
+                Console.WriteLine($"{i+1} - {EnemyParty[i].Name} (Level: {EnemyParty[i].Level} Health: {EnemyParty[i].Health})");
+            }
+            Console.WriteLine($"{EnemyParty.Size + 1} - Return");
+            while (true)
+            {
+                var input = Console.ReadKey(true).KeyChar.ToString();
+                if (int.TryParse(input, out int selection) && selection >= 0 && selection <= EnemyParty.Size + 1)
+                {
+                    if (selection == EnemyParty.Size + 1) return null;
+                    return EnemyParty[selection - 1];
+                }
+                else
+                    Console.WriteLine("Selection not valid");
+            }
+
+        }
+
+        public IItem? SelectItem()
+        {
+            if (Inventory.Count == 0)
+            {
+                Console.WriteLine("Inventory is empty.");
+                return null;
+            }
+            Console.WriteLine("Select item to use");
+            for (int i = 0; i < Inventory.Count; i++)
+            {
+                Console.WriteLine($"{i + 1} - {Inventory[i].Name}");
+            }
+            while (true)
+            {
+                var input = Console.ReadKey(true).KeyChar.ToString();
+                if (int.TryParse(input, out int selection) && selection >= 0 && selection <= Inventory.Count + 1)
+                {
+                    if (selection == Inventory.Count + 1 ) return null;
+                    return Inventory[selection - 1];
+                }
+                else
+                    Console.WriteLine("Selection not valid");
+            }
+        }
+
         public void Add(ICharacter character)
         {
             Characters.Add(character);
@@ -138,6 +219,16 @@ namespace DungeonRPG
         public void Remove(ICharacter character)
         {
             Characters.Remove(character);
+        }
+
+        public IEnumerator<ICharacter> GetEnumerator()
+        {
+            return Characters.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }
