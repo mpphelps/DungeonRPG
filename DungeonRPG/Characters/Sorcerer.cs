@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace DungeonRPG.Characters
 {
-    public class UncodedOne : ICharacter
+    public class Sorcerer : ICharacter
     {
         public int Health { get; set; }
         public int MaxHealth { get; }
         public string Name { get; set; } = "The Uncoded One";
         public int Level { get; set; }
-        public bool IsDead { get; set; }
-        public UncodedOne(int level)
+        public bool IsDead { get; set; } = false;
+        public Sorcerer(int level)
         {
             Level = level;
             MaxHealth = Level * 5;

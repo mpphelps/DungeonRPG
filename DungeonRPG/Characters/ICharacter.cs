@@ -13,11 +13,7 @@
         }
         public void Attack(ICharacter character);
         public void UseItem(IItem item);
-        public void LevelUp()
-        {
-            Level++;
-            Console.WriteLine($"{Name} leveled up to {Level}!");
-        }
+        
 
     }
 }

@@ -6,7 +6,7 @@
         public int MaxHealth { get; }
         public string Name { get; set; } = "Skeleton";
         public int Level { get; set; }
-        public bool IsDead { get; set; }
+        public bool IsDead { get; set; } = false;
         public Skeleton(int level)
         {
             Level = level;

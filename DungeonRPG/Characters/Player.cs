@@ -6,11 +6,11 @@
         public int MaxHealth { get; }
         public string Name { get; set; }
         public int Level { get; set; }
-        public bool IsDead { get; set; }
+        public bool IsDead { get; set; } = false;
         public Player(int level, string name)
         {
             Level = level;
-            MaxHealth = Level * 5;
+            MaxHealth = Level * 15;
             Health = MaxHealth;
             Name = name;
             IsDead = false;
@@ -33,6 +33,12 @@
         {
             Console.WriteLine($"{Name} used {item.Name}");
             item.Use(this);
+        }
+
+        public void LevelUp()
+        {
+            Level++;
+            Console.WriteLine($"{Name} leveled up to {Level}!");
         }
 
     }
