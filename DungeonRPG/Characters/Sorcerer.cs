@@ -8,11 +8,17 @@ namespace DungeonRPG.Characters
 {
     public class Sorcerer : ICharacter
     {
+        public Dictionary<IItem, int> Buffs { get; set; } = new();
         public int Health { get; set; }
-        public int MaxHealth { get; }
-        public string Name { get; set; } = "The Uncoded One";
+        public int MaxHealth { get; set; }
+        public int PhysicalDefense { get; set; }
+        public int MagicDefense { get; set; }
+        public int MagicAttack { get; set; }
+        public int PhsycialAttack { get; set; }
+        public string Name { get; set; } = "The Evil Sorcerer";
         public int Level { get; set; }
-        public bool IsDead { get; set; } = false;
+        public bool IsDead { get; set; }
+
         public Sorcerer(int level)
         {
             Level = level;
@@ -24,19 +30,8 @@ namespace DungeonRPG.Characters
         {
             var random = new Random();
             int damageDone = random.Next(0, 3);
-            character.Health -= damageDone;
-            Console.WriteLine($"{Name} unravels code on {character.Name} for {damageDone} damage!");
-            Console.WriteLine($"{character.Name} has {(character.Health < 0 ? 0 : character.Health)}/{character.MaxHealth} health points remaining.");
-            if (character.Health <= 0)
-            {
-                character.IsDead = true;
-                Console.WriteLine($"{character.Name} was knocked by {Name}");
-            }
-        }
-        public void UseItem(IItem item)
-        {
-            Console.WriteLine($"{Name} used {item.Name}");
-            item.Use(this);
+            Console.WriteLine($"{Name} unravels a spell on {character.Name} for {damageDone} damage!");
+            character.MagicalDamage(damageDone, this);
         }
     }
 }

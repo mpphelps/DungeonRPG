@@ -203,6 +203,14 @@ namespace DungeonRPG
             }
             return true;
         }
+
+        public void DecrementPartyBuffs()
+        {
+            foreach (var character in Characters)
+            {
+                character.DecrementBuffTimer();
+            }
+        }
     }
 }
 

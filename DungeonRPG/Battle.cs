@@ -33,6 +33,8 @@
                     didHeroDie = true;
                     break;
                 }
+                _heroes.DecrementPartyBuffs();
+                _monsters.DecrementPartyBuffs();
             }
             return didHeroDie;
         }

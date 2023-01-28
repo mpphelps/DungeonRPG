@@ -5,6 +5,11 @@
         public string Name { get; } = "Health Potion";
         public int Points { get; } = 20;
 
+        public void RemoveBuff(ICharacter character)
+        {
+            return;
+        }
+
         public void Use(ICharacter character)
         {
             character.Health += Points;
@@ -19,4 +24,5 @@
             }
         }
     }
+
 }

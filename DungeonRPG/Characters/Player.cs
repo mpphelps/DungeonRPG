@@ -2,11 +2,17 @@
 {
     public class Player : ICharacter
     {
+        public Dictionary<IItem, int> Buffs { get; set; } = new();
         public int Health { get; set; }
-        public int MaxHealth { get; }
+        public int MaxHealth { get; set; }
+        public int PhysicalDefense { get; set; }
+        public int MagicDefense { get; set; }
+        public int MagicAttack { get; set; }
+        public int PhsycialAttack { get; set; }
         public string Name { get; set; }
         public int Level { get; set; }
-        public bool IsDead { get; set; } = false;
+        public bool IsDead { get; set; }
+
         public Player(int level, string name)
         {
             Level = level;
@@ -19,26 +25,9 @@
         public void Attack(ICharacter character)
         {
             int damageDone = Level * 2;
-            character.Health -= damageDone;
             Console.WriteLine($"{Name} punches {character.Name} for {damageDone} damage!");
-            Console.WriteLine($"{character.Name} has {(character.Health < 0 ? 0 : character.Health)}/{character.MaxHealth} health points remaining.");
-            if (character.Health <= 0)
-            {
-                character.IsDead = true;
-                Console.WriteLine($"{character.Name} was knocked out by {Name}");
-            }
-        }
-
-        public void UseItem(IItem item)
-        {
-            Console.WriteLine($"{Name} used {item.Name}");
-            item.Use(this);
-        }
-
-        public void LevelUp()
-        {
-            Level++;
-            Console.WriteLine($"{Name} leveled up to {Level}!");
+            character.PhysicalDamage(damageDone, this);
+            
         }
 
     }

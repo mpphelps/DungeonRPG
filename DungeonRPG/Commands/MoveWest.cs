@@ -2,7 +2,7 @@
 {
     public class MoveWest : ICommand
     {
-        public bool Execute(Board board, Party party, bool roundOver)
+        public bool Execute(Board board, Party party, ref bool roundOver)
         {
             if (party.Position.Col - 1 < 0)
             {

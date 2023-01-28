@@ -10,7 +10,7 @@ namespace DungeonRPG
         private Party _heroes;
         private Board _board;
         private string _bigBadGuy = "Mehdivh";
-        private int _roundDifficulty = 0;
+        private int _roundDifficulty;
         private bool _gameOver = false;
         public Game(BoardSize boardSize)
         {
@@ -18,8 +18,6 @@ namespace DungeonRPG
             _heroes = new Party();
             _heroes.AddPlayer(level: 1);
             _board = new Board(boardSize);
-            BoardGenerator.GenerateTiles(_board, _roundDifficulty);
-            
         }
 
         private GameMode SelectGameMode()
@@ -47,9 +45,12 @@ namespace DungeonRPG
         public void Run()
         {
             Introduction();
-            while (!_gameOver)
+            _roundDifficulty = 0;
+            while (_roundDifficulty <= 5 || !_gameOver)
             {
+                BoardGenerator.GenerateTiles(_board, _roundDifficulty);
                 RunRound();
+                EndOfRound();
                 _roundDifficulty++;
                 // TODO: need something here to end the round when leaving the cave
             }
@@ -68,16 +69,28 @@ namespace DungeonRPG
                 var neighbors = _board.GetNeighbors(_heroes.Position);
                 foreach (var neighbor in neighbors) neighbor.NeighborEvent();
 
-                if (_heroes.AreAllDead()) break;
+                if (_heroes.AreAllDead())
+                {
+                    _gameOver = true;
+                    break;
+                }
 
                 ICommand command = GetCommand();
                 Console.Clear();
-                command.Execute(_board, _heroes, roundOver);
-
+                command.Execute(_board, _heroes, ref roundOver);
                 // TODO: need something here to end the round when leaving the cave
             }
-            
+        }
 
+        public void EndOfRound()
+        {
+            // TODO: Sumarize party experience gained, do level ups
+            Console.WriteLine("Heroes gained 100xp!! Yayayayya");
+            Console.WriteLine("Everyone in your party leveled up once, fuck you and your xp");
+            foreach (var character in _heroes)
+            {
+                character.LevelUp(1);
+            }
         }
 
         private void Introduction()
