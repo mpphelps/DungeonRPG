@@ -9,7 +9,6 @@ namespace DungeonRPG
     {
         private Party _heroes;
         private Board _board;
-        private GameMode _mode;
         private string _bigBadGuy = "Mehdivh";
         private int _roundDifficulty = 0;
         private bool _gameOver = false;
