@@ -7,6 +7,7 @@ namespace DungeonRPG
     public class Board
     {
         private IRoom[,] _rooms;
+        public Position EntrancePosition { get; set; } = new Position();
         public BoardSize Size { get; private set; }
 
         public Board(BoardSize size)
@@ -29,6 +30,12 @@ namespace DungeonRPG
             set
             {
                 _rooms[row, col] = value;
+                if(value is Entrance)
+                {
+                    EntrancePosition.Row = row;
+                    EntrancePosition.Col = col;
+                }
+                    
             }
         }
 
@@ -68,9 +75,10 @@ namespace DungeonRPG
                     else if (currentRoom is Entrance) board.Append($" ^ |");
                     else if (currentRoom is NormalRoom) board.Append($"   |");
                     //else if (currentRoom is Fountain) board.Append($" & |");
-                    else if (currentRoom is Pit) board.Append($" * |");
-                    else if (currentRoom is TreasureRoom) board.Append($" $ |");
-                    else if (currentRoom is MonsterRoom) board.Append($" # |");
+                    else if (currentRoom is Pit) board.Append($" P |");
+                    else if (currentRoom is TreasureRoom) board.Append($" T |");
+                    else if (currentRoom is MonsterRoom) board.Append($" M |");
+                    else if (currentRoom is Exit) board.Append($" E |");
                     //else if (currentRoom is Maelstrom) board.Append($" @ |");
                     //else if (currentRoom is Amarok) board.Append($" A |");
                 }

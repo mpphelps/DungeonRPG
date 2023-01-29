@@ -17,7 +17,8 @@ namespace DungeonRPG
             board[0, 2] = new MonsterRoom(monsters);
             board[2, 2] = new Pit();
             board[2, 0] = new TreasureRoom(new HealthPotion());
-            
+            board[3, 3] = new Exit();
+
         }
 
         private static void InitializeRooms(Board board)

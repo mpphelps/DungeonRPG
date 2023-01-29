@@ -48,6 +48,7 @@ namespace DungeonRPG
             _roundDifficulty = 0;
             while (_roundDifficulty <= 5 || !_gameOver)
             {
+                _heroes.Position = _board.EntrancePosition;
                 BoardGenerator.GenerateTiles(_board, _roundDifficulty);
                 RunRound();
                 EndOfRound();
@@ -78,7 +79,7 @@ namespace DungeonRPG
                 ICommand command = GetCommand();
                 Console.Clear();
                 command.Execute(_board, _heroes, ref roundOver);
-                // TODO: need something here to end the round when leaving the cave
+                
             }
         }
 
@@ -86,7 +87,7 @@ namespace DungeonRPG
         {
             // TODO: Sumarize party experience gained, do level ups
             Console.WriteLine("Heroes gained 100xp!! Yayayayya");
-            Console.WriteLine("Everyone in your party leveled up once, fuck you and your xp");
+            Console.WriteLine("Everyone in your party leveled up once");
             foreach (var character in _heroes)
             {
                 character.LevelUp(1);
@@ -113,8 +114,8 @@ namespace DungeonRPG
                 Console.WriteLine("2 - Move South");
                 Console.WriteLine("3 - Move East");
                 Console.WriteLine("4 - Move West");
-                if (HeroesAreAtEntrance())
-                    Console.WriteLine("5 - Leave");
+                if (HeroesAreAtExit())
+                    Console.WriteLine("5 - Descend");
                 while (true)
                 {
                     var input = Console.ReadKey(true).KeyChar.ToString();
@@ -122,7 +123,7 @@ namespace DungeonRPG
                     else if (input == "2") return new MoveSouth();
                     else if (input == "3") return new MoveEast();
                     else if (input == "4") return new MoveWest();
-                    else if (input == "5" && HeroesAreAtEntrance()) return new Leave();
+                    else if (input == "5" && HeroesAreAtExit()) return new Descend();
                     else
                     {
                         Console.WriteLine("Invalid selection");
@@ -132,9 +133,9 @@ namespace DungeonRPG
             }
         }
 
-        private bool HeroesAreAtEntrance()
+        private bool HeroesAreAtExit()
         {
-            return _board[_heroes.Position.Row, _heroes.Position.Col] is Entrance;
+            return _board[_heroes.Position.Row, _heroes.Position.Col] is Exit;
         }
 
         
