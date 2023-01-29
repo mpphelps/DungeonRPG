@@ -8,6 +8,7 @@ namespace DungeonRPG
     {
         private IRoom[,] _rooms;
         public Position EntrancePosition { get; set; } = new Position();
+        public Position ExitPosition { get; set; } = new Position();
         public BoardSize Size { get; private set; }
 
         public Board(BoardSize size)
@@ -35,7 +36,11 @@ namespace DungeonRPG
                     EntrancePosition.Row = row;
                     EntrancePosition.Col = col;
                 }
-                    
+                if(value is Exit)
+                {
+                    ExitPosition.Row = row;
+                    ExitPosition.Col = col;
+                }
             }
         }
 

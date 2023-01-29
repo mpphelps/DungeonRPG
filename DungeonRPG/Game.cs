@@ -48,8 +48,8 @@ namespace DungeonRPG
             _roundDifficulty = 0;
             while (_roundDifficulty <= 5 || !_gameOver)
             {
+                _board = BoardGenerator.GenerateBoard(_board, _roundDifficulty);
                 _heroes.Position = _board.EntrancePosition;
-                BoardGenerator.GenerateTiles(_board, _roundDifficulty);
                 RunRound();
                 EndOfRound();
                 _roundDifficulty++;
